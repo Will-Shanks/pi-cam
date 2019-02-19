@@ -1,6 +1,6 @@
 import picamera
 import os
-import _thread
+import threading
 import time
 import socket
 import shutil
@@ -10,7 +10,7 @@ STREAM_IP = ('192.168.0.10',8000) # stream recording out this socket
 SEC_PER_RECORDING = 60 #save recordings in 60 sec segments
 RECORDING_RES = (640, 480)
 RECORDING_FPS = 24
-MIN_FREE_SPACE = int(2e9) #minimum free space in fs, 2GB
+MIN_FREE_SPACE = int(2e9) #minimum free space in fs, 2GiB
 
 
 class OutputStream(object):
@@ -29,16 +29,19 @@ class OutputStream(object):
         self._sock.bind(ip_sock)
         self._is_connected = False
         self._connection = None
-        #self.listen()
+        self._listen()
 
-    def listen(self):
+    def _listen(self):
         #TODO: Handle connection termination (listen for a new connection)
         try:
-            _thread.start_new_thread(get_connection())
+            t = threading.Thread(name='sock_listener', target=self._get_connection)
+            t.setDaemon(True)
+            t.start()
         except:
             print("unable to start listening thread")
 
-    def get_connection(self):
+    def _get_connection(self):
+        print("listening for incoming connection")
         self._sock.listen(0)
         self._connection = self._sock.accept()[0].makefile('wb')
         self._is_connected = True
@@ -50,6 +53,7 @@ class OutputStream(object):
             self._fh.close()
             self._filename = fn
             self._fh = open(self._dir+"/"+fn + '.h264', 'wb')
+            print("changing file")
         self._fh.write(s)
         #if socket bound, stream out of it
         if self._connection:
@@ -66,14 +70,14 @@ class OutputStream(object):
             self._sock.close()
 
 
-def garbage_collection(d):
+def garbage_collection():
     while(1):
         if(shutil.disk_usage(RECORD_DIR).free <= MIN_FREE_SPACE):
             #delete oldest recording
             oldest = min(os.listdir(RECORD_DIR), key=lambda x: int(x[:-5]))
-            print("deleting oldest recording %s" %oldest)
+            print("garbage collector: deleting oldest recording %s" %oldest)
             os.remove(RECORD_DIR+"/"+oldest)
-        print("sleeping")
+        print("garbage collector: sleeping")
         time.sleep(SEC_PER_RECORDING/2)
 
 def ensure_dir(d):
@@ -87,7 +91,8 @@ def main():
     ensure_dir(RECORD_DIR)
     # start garbage collection
     print("starting garbage collection thread")
-    #_thread.start_new_thread(garbage_collection(RECORD_DIR))
+    t = threading.Thread(name='garbage_collection', target=garbage_collection)
+    t.start()
     # record forever
     print("starting camera")
     stream = OutputStream(RECORD_DIR, STREAM_IP)
@@ -98,7 +103,7 @@ def main():
             camera.start_recording(stream, format='h264')
             camera.wait_recording(30)
             camera.stop_recording()
-            break
+            print("recorded another 30sec")
     stream.close()
 if __name__ == '__main__':
     main()
