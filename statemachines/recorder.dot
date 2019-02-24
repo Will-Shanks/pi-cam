@@ -1,0 +1,42 @@
+digraph {
+  r_a_start->r_open [label="New Thread", color=blue]
+  r_a_start->g_a_start
+  r_open->r_r
+  r_r->r_close [label="time/R_INTERVAL != Recording File name"]
+  r_close->r_open [label="R_UPDATE=False"]
+  r_close->r_restart [label="R_UPDATE=True"]
+  r_restart->r_open
+
+  r_a_stop->r_stop [label="Signal Thread", style=dashed, color=red]
+  r_a_stop->g_a_stop
+  r_stop->d [color=red]
+
+  r_a_s_fps->r_update [label="new FPS != old FPS"]
+  r_a_s_res->r_update [label="new RES != old RES"]
+
+  r_r [label="Record and Save Video"]
+  r_update [label="Set R_UPDATE=True"]
+  r_close [label="Close (old) Recording File"]
+  r_open [label="Open Recording File"]
+  r_restart [label="Restart Recording with current R_FPS and R_RES"]
+  r_stop [label="Stop Recording, Close Recording File"]
+
+  d [label="Kill Thread", style=filled, fillcolor=grey]
+
+  subgraph cluster_r_a {
+    label="Recorder API"    
+    r_a_g_fps [label="Get R_FPS", shape=box]
+    r_a_s_fps [label="Set R_FPS", shape=box]
+    r_a_g_res [label="Get R_RES", shape=box]
+    r_a_s_res [label="Set R_RES", shape=box]
+    r_a_start [label="Start", shape=box]
+    r_a_stop [label="Stop", shape=box]
+  }
+
+  subgraph cluster_g_a {
+    label="Memory Manager API"
+    g_a_start [label="Start", shape=box]
+    g_a_stop [label="Stop", shape=box]
+  }
+
+}
