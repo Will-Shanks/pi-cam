@@ -8,8 +8,8 @@ import shutil
 RECORD_DIR='/home/pi/pi-cam/recordings' # save recordings in this dir
 STREAM_IP = ('192.168.0.10',8000) # stream recording out this socket
 SEC_PER_RECORDING = 60 #save recordings in 60 sec segments
-RECORDING_RES = (640, 480)
-RECORDING_FPS = 24
+RECORDING_RES = (1920,1080)#(640, 480)
+RECORDING_FPS = 30#24
 MIN_FREE_SPACE = int(2e9) #minimum free space in fs, 2GiB
 
 
@@ -25,7 +25,8 @@ class OutputStream(object):
         self._fh = open(filedir+"/"+self._filename + '.h264', 'wb')
         #TODO: UDP socket
         #TODO add locking for thread
-        self._sock = socket.socket()
+        #TODO debug network problem
+        self._sock = socket.socket()#socket.AF_INET, socket.SOCK_DGRAM) #ipv4 udp socket
         self._sock.bind(ip_sock)
         self._is_connected = False
         self._connection = None
@@ -45,6 +46,7 @@ class OutputStream(object):
         self._sock.listen(0)
         self._connection = self._sock.accept()[0].makefile('wb')
         self._is_connected = True
+        print("found connection")
 
     def write(self, s):
         # Write to current file, or open new one if has been sec_per_recording
@@ -57,7 +59,8 @@ class OutputStream(object):
         self._fh.write(s)
         #if socket bound, stream out of it
         if self._connection:
-            bytes_sent = self._connection.send(s)
+            print("writing to socket")
+            bytes_sent = self._connection.write(s)
             return bytes_sent
 
     def close(self):
@@ -92,6 +95,7 @@ def main():
     # start garbage collection
     print("starting garbage collection thread")
     t = threading.Thread(name='garbage_collection', target=garbage_collection)
+    t.setDaemon(True)
     t.start()
     # record forever
     print("starting camera")
