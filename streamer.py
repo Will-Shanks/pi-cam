@@ -8,7 +8,7 @@ import picamera
 from options import FPS, IP, R_RES, S_PORT, S_RES
 
 
-class Recorder:
+class Streamer:
     "Streams video if someone is listening"
 
     def __init__(self):
@@ -16,7 +16,7 @@ class Recorder:
         self._sock.bind((IP, S_PORT))
         self._con = None
         self._res = S_RES
-        self._T = threading.Thread(target=self._stream)
+        self._T = threading.Thread(target=self._listen)
         self._d = threading.Event()
         self._u = threading.Event()
 
@@ -72,5 +72,6 @@ class Recorder:
                 camera.stop_recording(splitter_port=2)
         finally:
             self._con.close()
+            self._con = None
             if not self._d.is_set():
                 self._listen()
