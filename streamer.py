@@ -16,13 +16,14 @@ class Streamer:
         self._sock.bind((IP, S_PORT))
         self._con = None
         self._res = S_RES
-        self._T = threading.Thread(target=self._listen)
+        self._T = None
         self._d = threading.Event()
 
     def start(self):
         "Start streamer thead if not already running"
-        if self._T.is_alive():
+        if self._T:
             return False
+        self._T = threading.Thread(target=self._listen)
         self._T.start()
         return True
 
@@ -35,14 +36,18 @@ class Streamer:
                 return False
             self._sock.close()
             self._d.clear()
+            self._T = None
         return True
 
     def _listen(self):
         self._sock.settimeout(10)
         while not self._d.is_set():
-            self._sock.listen(0)
-            self._con = self._sock.accept()[0].makefile('wb')
-            self._stream()
+            try:
+                self._sock.listen(0)
+                self._con = self._sock.accept()[0].makefile('wb')
+                self._stream()
+            except socket.timeout:
+                pass
 
     def _stream(self):
         try:
@@ -61,5 +66,3 @@ class Streamer:
         finally:
             self._con.close()
             self._con = None
-            if not self._d.is_set():
-                self._listen()
