@@ -74,4 +74,7 @@ class Streamer:
                     self._con.close()
                 except BrokenPipeError:
                     pass
+                except ConnectionResetError:
+                    pass
                 self._con = None
+
