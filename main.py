@@ -3,15 +3,18 @@ main api for pi space camera
 """
 import time
 
-import recorder
-
+from recorder import Recorder
+from streamer import Streamer
 
 def main():
     """ main loop for space camera api"""
-    r = recorder.Recorder()
-    r.start()
-    time.sleep(120)
-    r.stop()
+#    r = Recorder()
+#    r.start()
+    s = Streamer()
+    s.start()
+    time.sleep(600)
+    s.stop()
+#    r.stop()
 
 
 if __name__ == '__main__':
