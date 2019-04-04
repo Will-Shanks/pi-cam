@@ -104,7 +104,7 @@ class Camera:
     "Object for recording and streaming video in a background thread"
 
     def __init__(self):
-        self._con = Streamer()
+        self._con = None
         self._S = Saver()
         self._T = None
         self._M = MemoryManager()
@@ -116,6 +116,7 @@ class Camera:
         if self._T is not None and self._T.is_alive():
             return False
         print("starting cam")
+        self._con = Streamer()
         self._M.start()
         self._T = threading.Thread(target=self._record)
         self._T.start()
@@ -132,6 +133,7 @@ class Camera:
                 return False
         self._d.clear()
         self._M.stop()
+        self._con = None
         return True
 
     def _record(self):

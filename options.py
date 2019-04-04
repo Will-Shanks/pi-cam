@@ -20,5 +20,11 @@ S_FPS = 5
 D_PORT = 8002
 
 # OpCode definitions
-ops = {}
-ops['D_REQ'] = 1
+PI_OFF = 0
+CAM_OFF = 1
+CAM_ON = 2
+LED_OFF = 3
+LED_LOW = 4
+LED_MED = 5
+LED_HIGH = 6
+
