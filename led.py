@@ -1,7 +1,8 @@
 """Everything to do with lighting up LEDs"""
 
-import RPi.GPIO as GPIO
 import time
+
+import RPi.GPIO as GPIO
 
 # hardware pwm on gpio12,13,18,19
 
@@ -14,8 +15,7 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(12, GPIO.OUT)
 
 p = GPIO.PWM(12, 50)
-p.start(1)
+p.start(LOW)
 for i in (MED, HIGH, FULL):
     time.sleep(15)
     p.ChangeDutyCycle(i)
-
