@@ -1,21 +1,22 @@
-"""Everything to do with lighting up LEDs"""
+"""LED test script"""
 
 import time
 
-import RPi.GPIO as GPIO
-
-# hardware pwm on gpio12,13,18,19
-
-LOW = 25
-MED = 50
-HIGH = 75
-FULL = 100
+#pins = [12,13,18,19]
+pins = [12, 32, 33, 35]
 
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(12, GPIO.OUT)
-
-p = GPIO.PWM(12, 50)
-p.start(LOW)
-for i in (MED, HIGH, FULL):
-    time.sleep(15)
-    p.ChangeDutyCycle(i)
+try:
+    for i in pins:
+        print("gpio pin " + str(i))
+        GPIO.setup(i, GPIO.OUT)
+        p = GPIO.PWM(i, 100)
+        p.start(0)
+        for i in range(101):
+            time.sleep(0.01)
+            p.ChangeDutyCycle(i)
+            if (i % 10 == 0):
+                print("\t power: " + str(i))
+        p.stop()
+finally:
+    GPIO.cleanup()

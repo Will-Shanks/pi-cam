@@ -2,8 +2,18 @@
 Records video from the pi camera into h264 format, streams it, and saves it for latter
  - saves as much video as possible, but when sd card starts to get full deletes oldes video segments
 
-## To use
-- run ```python3 server.py```
+## led test
+- run ```python3 led.py```
+- the 4 gpio pins it uses are __not__ the intended pins
+  - schematic doesn't seem to match the RPi.GPIO module
+  - may need to experiment to find correct pins for your setup
+
+
+## streaming
+-- run ```python3 streamer.py```
+
+## recording
+- run ```python3 recorder.py```
 - to use the .h264 files run them through ffmpeg
 ```ffmpeg -r <record framerate> -i <input h264> -r <record framerate> <output file>```
 - to concatenate video segments

@@ -78,3 +78,10 @@ class Streamer:
                     pass
                 self._con = None
 
+
+if __name__ == '__main__':
+    import time
+    s = Streamer()
+    s.start()
+    time.sleep(60)
+    s.stop()
