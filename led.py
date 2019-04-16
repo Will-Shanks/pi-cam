@@ -1,22 +1,36 @@
 """LED test script"""
 
-import time
+import RPi.GPIO as GPIO
 
-#pins = [12,13,18,19]
-pins = [12, 32, 33, 35]
 
-GPIO.setmode(GPIO.BOARD)
-try:
-    for i in pins:
-        print("gpio pin " + str(i))
-        GPIO.setup(i, GPIO.OUT)
-        p = GPIO.PWM(i, 100)
-        p.start(0)
-        for i in range(101):
-            time.sleep(0.01)
-            p.ChangeDutyCycle(i)
-            if (i % 10 == 0):
-                print("\t power: " + str(i))
-        p.stop()
-finally:
-    GPIO.cleanup()
+class LED:
+    """Wrapper class for LEDs"""
+
+    def __init__(self):
+        self.pins = [12, 32, 33, 35]
+        GPIO.setmode(GPIO.BOARD)
+        self.p = [GPIO.setup(i, 100) for i in self.pins]
+        self.cur_level = -1
+
+    def __del__(self):
+        try:
+            for i in self.p:
+                i.stop()
+        finally:
+            GPIO.cleanup()
+
+    def set_level(self, level):
+        """Set LED pwm duty cycle, 0 to 100%"""
+        if level < 0:
+            level = 0
+        if level > 100:
+            level = 100
+        if self.cur_level == -1 and level != 0:
+            for i in self.p:
+                i.start(level)
+        elif self.cur_level != -1 and level == 0:
+            for i in self.p:
+                i.stop()
+        elif level != 0:
+            for i in self.p:
+                i.ChangeDutyCycle(level)
