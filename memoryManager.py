@@ -17,10 +17,11 @@ class MemoryManager:
 
     def __init__(self):
         self._d = threading.Event()
-        self._T = threading.Thread(target=self._checkMem)
+        self._T = None
 
     def start(self):
         "starts new thread to monitor free disk"
+        self._T = threading.Thread(target=self._checkMem)
         if not self._T.is_alive():
             self._T.start()
         return True

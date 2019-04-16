@@ -1,0 +1,23 @@
+digraph {
+    cam [label="Camera Thread"]
+    start [label="Start Memory Manager Thread"]
+    cam->start [label="start()"]
+    start->cam
+    stop [label="Signal Memory Manager Thread, wait up to R_INTERVAL sec for it to die"]
+    cam->stop [label="stop()"]
+    stop->cam
+
+    m_init [label="Memory Manager Thread Started"]
+    m_sig [label="Check if signal"]
+    m_init->m_sig
+    die [label="Thread Dead"]
+    m_sig->die [label="Signal from main thread"]
+    m_check [label="Check free disk space"]
+    m_sig->m_check [label="No Signal"]
+    m_sleep [label="Sleep"]
+    m_check->m_sleep [label="Over threshold"]
+    m_sleep->m_sig
+    m_del [label="Find and delete oldest recording"]
+    m_check->m_del [label="Under threshold"]
+    m_del->m_check
+}

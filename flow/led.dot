@@ -1,0 +1,19 @@
+digraph {
+    main [label="Main Thread"]
+    init [label="Initialize GPIO pins"]
+    main->init [label="Initialize"]
+    init->main
+    del [label="Stop any pwm signals, Cleanup GPIO"]
+    main->del [label="Delete LED Object"]
+    del->main
+    check [label="Check PWM status"]
+    main->check [label="set_level(x)"]
+    check->main [label="PWM off and x==0"]
+    start [label="start(x)"]
+    check->start [label="PWM off and x!=0"]
+    stop [label="stop()"]
+    check->stop [label="PWM on and x==0"]
+    change [label="ChangeDutyCycle(x)"]
+    check->change [label="PWM on and x!=0"]
+    {start,stop,change}->main
+}

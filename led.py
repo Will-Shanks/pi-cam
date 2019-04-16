@@ -10,7 +10,7 @@ class LED:
         self.pins = [12, 32, 33, 35]
         GPIO.setmode(GPIO.BOARD)
         self.p = [GPIO.setup(i, 100) for i in self.pins]
-        self.cur_level = -1
+        self.cur_level = 0
 
     def __del__(self):
         try:
@@ -25,10 +25,10 @@ class LED:
             level = 0
         if level > 100:
             level = 100
-        if self.cur_level == -1 and level != 0:
+        if self.cur_level == 0 and level != 0:
             for i in self.p:
                 i.start(level)
-        elif self.cur_level != -1 and level == 0:
+        elif self.cur_level != 0 and level == 0:
             for i in self.p:
                 i.stop()
         elif level != 0:

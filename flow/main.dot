@@ -1,0 +1,21 @@
+digraph {
+    off [label="Pi Off"]
+    power_up [label="Initialize, bind to socket, start camera"]
+    off->power_up [label="Power On"]
+    listen [label="Listen for connections"]
+    power_up->listen
+    decode [label="Decode message"]
+    listen->decode [label="Connection made"]
+    shutdown [label="Clean up and shutdown"]
+    led [label="led.set_level(_)"]
+    cam_start [label="cam.start()"]
+    cam_stop [label="cam.stop()"]
+    decode->shutdown [label="PI_OFF"]
+    decode->led [label="LED_*"]
+    decode->cam_start [label="CAM_ON"]
+    decode->cam_stop [label="CAM_OFF"]
+    shutdown->off
+    close_con [label="Close connection"]
+    {led,cam_start,cam_stop}->close_con
+    close_con->listen
+}

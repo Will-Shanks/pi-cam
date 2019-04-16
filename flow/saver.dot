@@ -1,0 +1,19 @@
+digraph {
+    cam [label="Camera Thread"]
+    get_fn [label="Calculate current filename from time"]
+    cam->get_fn [label="write(data)"]
+    write [label="Write to file"]
+    get_fn->write [label="File already open"]
+    write->cam
+    open_file [label="Close open file (if there is one), Open correct file"]
+    get_fn->open_file [label="File not open"]
+    open_file->write
+
+    init [label="Ensure recordings directory exists"]
+    cam->init [label="init saver"]
+    init->cam
+
+    close [label="Close any open files"]
+    cam->close [label="saver.close()"]
+    close->cam
+}

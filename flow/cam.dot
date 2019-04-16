@@ -1,0 +1,23 @@
+digraph {
+    main [label="Main loop"]
+    init [label="Start Memory Manager, cam.start()"]
+    start [label="Initialize Saver, Initialize Streamer, Start Camera Thread"]
+    main->init [label="Initialize"]
+    main->start [label= "cam.start()"]
+    start->main
+
+    stop [label="Signal Camera Thread to stop, wait up to 20 sec for it to stop"]
+    main->stop [label="cam.stop()"]
+    stop->main
+
+    cam_s [label="Cam Thread Started"]
+    cam_init [label="Initialize Camera"]
+    cam_s->cam_init
+    cam_rec [label="Record Chunk to Streamer, Record Chunk to Saver"]
+    cam_init->cam_rec
+    cam_rec->cam_rec
+    cam_stop [label="Stop Camera, Close Saver, Close Streamer"]
+    cam_rec->cam_stop [label="Stop Signal from main thread"]
+    cam_die [label="Thread dead"]
+    cam_stop->cam_die
+}

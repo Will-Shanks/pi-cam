@@ -105,7 +105,7 @@ class Camera:
 
     def __init__(self):
         self._con = None
-        self._S = Saver()
+        self._S = None
         self._T = None
         self._M = MemoryManager()
         self._d = threading.Event()
@@ -117,6 +117,7 @@ class Camera:
             return False
         print("starting cam")
         self._con = Streamer()
+        self._S = Saver()
         self._M.start()
         self._T = threading.Thread(target=self._record)
         self._T.start()

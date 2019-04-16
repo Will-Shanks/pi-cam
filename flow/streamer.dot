@@ -1,0 +1,27 @@
+digraph {
+    cam [label="Camera thread"]
+    init [label="bind to socket, start streamer thread"]
+    cam->init [label="init streamer"]
+    init->cam
+    stop [label="Close any open connections, Close socket"]
+    cam->stop [label="streamer.close()"]
+    stop->cam
+    check_con [label="Check connection status"]
+    cam->check_con [label="write(data)"]
+    check_con->cam [label="No open connection"]
+    write [label="Write to connection"]
+    check_con->write [label="Open connection"]
+    err [label="close connection, start streamer thread"]
+    write->cam [label="No errors"]
+    write->err [label="error"]
+    err->cam
+
+    s_init [label="Streamer thread started"]
+    s_listen [label="Listen for connection"]
+    s_init->s_listen
+    s_listen->s_listen
+    s_con [label="Setup Connection"]
+    s_listen->s_con [label="Connection Found"]
+    die [label="Thread dead"]
+    s_con->die
+}
