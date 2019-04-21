@@ -24,7 +24,7 @@ while True:
         l.set_level(0)
         print("Turning off")
         break
-        #call("shutdown --poweroff", shell=True)
+        #call("poweroff", shell=True)
     elif op == OPS.CAM_OFF.value:
         c.stop()
         l.set_level(0)
