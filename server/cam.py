@@ -3,6 +3,7 @@ All code that deals directly with the picamera
 """
 import os
 import socket
+import struct
 import threading
 import time
 
@@ -26,7 +27,8 @@ class Streamer:
         "writes to socket if there is a connection"
         if self._con:
             try:
-                self._con.write(s)
+                for b in s:
+                    self._con.write(struct.pack('>c', b))
             except:
                 self._clean_and_listen()
 
