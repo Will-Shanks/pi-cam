@@ -29,8 +29,9 @@ class MemoryManager:
     def stop(self):
         "signals MemoryManager thread to stop"
         if self._T.is_alive():
+            print("Stopping Memory Manager")
             self._d.set()
-            self._T.join(R_INTERVAL)
+            self._T.join(20)
             if self._T.is_alive():
                 return False
             self._d.clear()
@@ -44,4 +45,4 @@ class MemoryManager:
                 oldest = min(os.listdir(R_FILE_DIR), key=lambda x: int(x[:-5]))
                 os.remove(R_FILE_DIR + "/" + oldest)
                 print("deleting " + oldest)
-            time.sleep(R_INTERVAL / 2)
+            time.sleep(5)

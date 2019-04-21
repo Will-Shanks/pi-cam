@@ -19,8 +19,12 @@ class Streamer:
         self._sock = socket.socket()
         self._sock.bind((IP, S_PORT))
         self._con = None
+        self._d = threading.Event()
         self._T = threading.Thread(target=self._listen)
         self._T.start()
+
+    def __del__(self):
+        self.close()
 
     def write(self, s):
         "writes to socket if there is a connection"
@@ -36,8 +40,13 @@ class Streamer:
             self._con.close()
         except:
             pass
+        self._T.join(5)  # wait 20 sec, or till thread shuts down
+        # check if thread shutdown
         self._con = None
         self._sock.close()
+        del self._T
+        self._d.clear()
+
 
     def _clean_and_listen(self):
         print("con lost, looking for a new one")
@@ -50,13 +59,15 @@ class Streamer:
         self._T.start()
 
     def _listen(self):
-        self._sock.settimeout(10)
-        while True:
+        self._sock.settimeout(1)
+        while not self._d.is_set():
             try:
-                self._sock.listen()
+                self._sock.listen(0)
                 self._con = self._sock.accept()[0].makefile('wb')
                 break
             except socket.timeout:
+                pass
+            except OSError:
                 pass
         print("connection found!")
 
@@ -65,10 +76,14 @@ class Saver:
     "write stream into files in chunkcs of R_INTERVAL secs"
 
     def __init__(self):
+        print("Saver made")
         self._fn = None
         self._fh = None
         if not os.path.isdir(R_FILE_DIR):
             os.makedirs(R_FILE_DIR)
+
+    def __del__(self):
+        self.close()
 
     def write(self, s):
         """
@@ -92,6 +107,7 @@ class Saver:
 
     def close(self):
         "cleans up any open files"
+        print("Saver closed")
         try:
             self._fh.close()
         except AttributeError:
@@ -128,29 +144,34 @@ class Camera:
         print("stoping cam")
         if self._T is not None and self._T.is_alive():
             self._d.set()  # signal for thread to shutdown
-            self._T.join(20)  # wait 20 sec, or till thread shuts down
+            self._T.join(10)  # wait 20 sec, or till thread shuts down
             # check if thread shutdown
-            if self._T.is_alive():
-                return False
+        print("cam stopped")
+        self._T = None
+        self._S = None
+        self._con = None
         self._d.clear()
         self._M.stop()
-        self._con = None
         return True
 
     def _record(self):
+        print("started recording thread")
         with picamera.PiCamera() as c:
             c.resolution = R_RES
             c.framerate = FPS
             # Start recording to file
-            c.start_recording(self._S, format='h264')
-            c.start_recording(
-                self._con, splitter_port=2, format='h264', resize=S_RES)
-            while not self._d.is_set():
-                c.wait_recording(5)
-            c.stop_recording()
-            self._S.close()
-            c.stop_recording(splitter_port=2)
-            self._con.close()
+            try:
+                c.start_recording(self._S, format='h264')
+                c.start_recording(
+                    self._con, splitter_port=2, format='h264', resize=S_RES)
+                while not self._d.is_set():
+                    c.wait_recording(5)
+            finally:
+                print("Ending recording")
+                c.stop_recording()
+                self._S.close()
+                c.stop_recording(splitter_port=2)
+                self._con.close()
 
 
 if __name__ == "__main__":
