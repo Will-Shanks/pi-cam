@@ -3,7 +3,7 @@ from enum import Enum
 
 # General settings
 IP = '192.168.0.10'
-FPS = 5  # 30
+FPS = 60
 
 # Recorder and memory manager options
 R_FILE_DIR = "/home/pi/pi-cam/recordings"
