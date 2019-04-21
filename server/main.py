@@ -27,6 +27,7 @@ while True:
         #call("shutdown --poweroff", shell=True)
     elif op == OPS.CAM_OFF.value:
         c.stop()
+        l.set_level(0)
     elif op == OPS.CAM_ON.value:
         c.start()
     elif op == OPS.LED_OFF.value:
@@ -43,5 +44,7 @@ while True:
 sock.close()
 c.stop()
 del l
+del c
+del sock
 print("Something Bad happened!")
 #call("reboot", shell=True)

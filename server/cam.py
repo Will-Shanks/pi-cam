@@ -36,6 +36,7 @@ class Streamer:
 
     def close(self):
         "clean up connections"
+        self._d.set()  # signal for thread to shutdown
         try:
             self._con.close()
         except:
