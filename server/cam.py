@@ -41,11 +41,15 @@ class Streamer:
             self._con.close()
         except:
             pass
-        self._T.join(5)  # wait 20 sec, or till thread shuts down
-        # check if thread shutdown
+        if self._T and self._T.is_alive():
+            self._T.join(5)  # wait 5 sec, or till thread shuts down
         self._con = None
-        self._sock.close()
-        del self._T
+        try:
+            self._sock.close()
+        except AttributeError:
+            pass
+        self._sock = None
+        self._T = None
         self._d.clear()
 
 
