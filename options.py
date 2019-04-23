@@ -2,7 +2,8 @@
 from enum import Enum
 
 # General settings
-IP = '192.168.0.10'
+#IP = '192.168.0.10'
+IP = '10.202.23.82'
 FPS = 30
 
 # Recorder and memory manager options

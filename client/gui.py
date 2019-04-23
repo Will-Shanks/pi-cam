@@ -1,12 +1,15 @@
 import socket
 import struct
+import subprocess
 import tkinter
 
-from options import C_PORT, IP, OPS
+from options import C_PORT, FPS, IP, OPS, S_PORT
 
 window = tkinter.Tk()
 window.title("A Basic GUI")
 window.geometry('400x200')
+
+player = None
 
 
 def send_cmd(op):
@@ -45,7 +48,24 @@ def pi_off():
     send_cmd(OPS.PI_OFF)
 
 
-send_cmd(OPS.PI_OFF)
+def stream_on():
+    global player
+    if player is not None:
+        return
+    cmdline = [
+        'cvlc', '--demux', 'h264', '--h264-fps',
+        str(FPS), 'tcp/h264://' + IP + ':' + str(S_PORT)
+    ]
+    player = subprocess.Popen(cmdline)
+
+
+def stream_off():
+    global player
+    if player is None:
+        return
+    player.terminate()
+    player = None
+
 
 led_off = tkinter.Button(window, text="LEDs off", command=l_off_c)
 led_off.grid(column=0, row=0)
@@ -59,6 +79,10 @@ cam_off = tkinter.Button(window, text="Camera Off", command=cam_off)
 cam_off.grid(column=0, row=1)
 cam_on = tkinter.Button(window, text="Camera On", command=cam_on)
 cam_on.grid(column=1, row=1)
+s_on = tkinter.Button(window, text="Start Stream", command=stream_on)
+s_on.grid(column=1, row=2)
+s_off = tkinter.Button(window, text="Stop Stream", command=stream_off)
+s_off.grid(column=0, row=2)
 pi_off = tkinter.Button(window, text="Pi Off", command=pi_off)
-pi_off.grid(column=0, row=2)
+pi_off.grid(column=0, row=3)
 window.mainloop()
